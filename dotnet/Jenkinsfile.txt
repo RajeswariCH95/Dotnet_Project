@@ -1,0 +1,50 @@
+
+node() { 
+	
+    stage('Checkout') {  
+	//checkout the code from source
+        git 'https://github.com/RajeswariCH95/Dotnet_Project.git'
+    }
+    stage('Build') {  
+	//build steps 
+         bat 'nuget restore helloworld.csproj'  //restore nuget sources
+         bat "\"${tool 'MSBuild'}\" helloworld.csproj /m /p:VisualStudioVersion=14.0"   //msbuild
+    }
+    
+    stage('Artifact Push') {
+	// Obtain an Artifactory server instance, defined in Jenkins --> Manage:
+    def server = Artifactory.server jfrog
+
+    // Read the upload spec which was downloaded from github.
+    def uploadSpec = readFile 'jenkins-examples/pipeline-examples/resources/exclude-upload.json'
+    // Upload to Artifactory.
+    def buildInfo = server.upload spec: uploadSpec
+
+    // Publish the build to Artifactory
+    server.publishBuildInfo buildInfo
+	
+	}
+	
+	stage('Artifact Extract'){
+	
+	
+    def server = Artifactory.server jfrog
+
+    // Read the upload spec which was downloaded from github.
+    def uploadSpec = readFile 'jenkins-examples/pipeline-examples/resources/props-upload.json'
+    // Upload to Artifactory.
+    def buildInfo1 = server.upload spec: uploadSpec
+
+    // Read the upload spec and upload files to Artifactory.
+    def downloadSpec = readFile 'jenkins-examples/pipeline-examples/resources/exclude-download.json'
+    def buildInfo2 = server.download spec: downloadSpec
+
+    // Merge the upload and download build-info objects.
+    buildInfo1.append buildInfo2
+
+    // Publish the build to Artifactory
+    server.publishBuildInfo buildInfo1
+	}
+	
+    
+}
