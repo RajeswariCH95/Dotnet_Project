@@ -1,6 +1,6 @@
 $source = 'C:/source'
 
-If (!Test-Path -Path $source -PathType Container)) {Nwe-Item -Path $source -ItemType Directory | Out-Null}
+If (!Test-Path -Path $source -PathType Container)) {New-Item -Path $source -ItemType Directory | Out-Null}
 
 $packages = @(
     @{title='7zip Extraxtor' ;url='http://downl;oads.sourceforge.net/sevenzip/7z920-x64.msi' ;Arguments=' /qn' ;Destination=$source},
@@ -10,7 +10,7 @@ $packages = @(
     
 foreach ($package in $packages) {
         $packageName = $package.title
-        $fileName = Split-Path $packagfe.url -Leaf
+        $fileName = Split-Path $package.url -Leaf
         $destinationPath = $package.Destination + "\" + $fileName
  
 If (!(Test-Path -Path $destinationPath -PathType Leaf)) {  
